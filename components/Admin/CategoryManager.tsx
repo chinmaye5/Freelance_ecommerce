@@ -189,14 +189,14 @@ const CategoryManager = () => {
                     <div className="md:hidden divide-y divide-gray-100">
                         {categories.map((cat) => (
                             <div key={cat._id} className="p-4">
-                                <div className="flex items-center justify-between gap-4 mb-2">
-                                    <div className="font-medium text-gray-900 flex items-center gap-2">
-                                        <div className="p-1.5 bg-green-50 rounded-md text-green-600">
+                                <div className="flex items-start justify-between gap-4 mb-2">
+                                    <div className="font-medium text-gray-900 flex items-start gap-2 min-w-0 flex-1">
+                                        <div className="p-1.5 bg-green-50 rounded-md text-green-600 flex-shrink-0 mt-0.5">
                                             <Tag size={14} />
                                         </div>
-                                        {cat.name}
+                                        <span className="break-words">{cat.name}</span>
                                     </div>
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-1 flex-shrink-0">
                                         <button
                                             onClick={() => handleEdit(cat)}
                                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"

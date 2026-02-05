@@ -36,22 +36,22 @@ export default function Home() {
 
       {/* Trust Badges */}
       <div className="max-w-7xl mx-auto w-full px-4 -mt-6">
-        <div className="bg-white grid grid-cols-1 md:grid-cols-3 gap-4 p-6 rounded-2xl shadow-md border border-gray-100">
-          <div className="flex items-center gap-4 p-2 justify-center">
+        <div className="bg-white grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-4 p-6 rounded-2xl shadow-md border border-gray-100">
+          <div className="flex flex-col items-center justify-center text-center gap-3 p-4">
             <div className="bg-green-50 p-3 rounded-full text-green-600"><ShoppingBasket size={24} /></div>
             <div>
               <p className="font-bold text-gray-900">Wide Variety</p>
               <p className="text-xs text-gray-500">1000+ Fresh items</p>
             </div>
           </div>
-          <div className="flex items-center gap-4 p-2 justify-center border-y md:border-y-0 md:border-x border-gray-100">
+          <div className="flex flex-col items-center justify-center text-center gap-3 p-4 border-y md:border-y-0 md:border-x border-gray-100 py-6 md:py-4">
             <div className="bg-orange-50 p-3 rounded-full text-orange-600"><Truck size={24} /></div>
             <div>
               <p className="font-bold text-gray-900">Self Pickup</p>
               <p className="text-xs text-gray-500">Fast & Convenient</p>
             </div>
           </div>
-          <div className="flex items-center gap-4 p-2 justify-center">
+          <div className="flex flex-col items-center justify-center text-center gap-3 p-4">
             <div className="bg-blue-50 p-3 rounded-full text-blue-600"><ShieldCheck size={24} /></div>
             <div>
               <p className="font-bold text-gray-900">Quality Checked</p>

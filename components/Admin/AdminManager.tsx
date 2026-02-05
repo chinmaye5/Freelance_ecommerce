@@ -161,33 +161,36 @@ const AdminManager = () => {
                     <div className="md:hidden divide-y divide-gray-100">
                         <div className="p-4 bg-green-50/30">
                             <div className="flex items-center gap-2 font-bold text-gray-900 mb-1">
-                                <Shield size={16} className="text-green-600" />
-                                <span className="truncate">{process.env.NEXT_PUBLIC_ADMIN_EMAIL || "Super Admin"}</span>
+                                <Shield size={16} className="text-green-600 flex-shrink-0" />
+                                <span className="truncate break-all">{process.env.NEXT_PUBLIC_ADMIN_EMAIL || "Super Admin"}</span>
                             </div>
-                            <div className="flex justify-between items-center text-xs">
+                            <div className="flex justify-between items-center text-xs mt-2">
                                 <span className="text-gray-500">System</span>
                                 <span className="font-bold text-gray-400 uppercase px-2 py-0.5 bg-gray-100 rounded">Super Admin</span>
                             </div>
                         </div>
 
                         {admins.map((admin) => (
-                            <div key={admin._id} className="p-4">
-                                <div className="flex justify-between items-start gap-3 mb-2">
-                                    <div>
-                                        <p className="font-bold text-gray-900">{admin.email}</p>
-                                        <p className="text-xs text-gray-500">Added by: {admin.addedBy}</p>
+                            <div key={admin._id} className="p-4 flex flex-col gap-3">
+                                <div className="flex justify-between items-start gap-3">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="font-bold text-gray-900 break-all">{admin.email}</p>
+                                        <p className="text-xs text-gray-500 mt-0.5">By: {admin.addedBy}</p>
                                     </div>
                                     <button
                                         onClick={() => handleRemoveAdmin(admin._id, admin.email)}
-                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                        className="p-2 bg-red-50 text-red-600 rounded-lg shrink-0 hover:bg-red-100 transition"
                                         title="Remove Admin"
                                     >
                                         <Trash2 size={18} />
                                     </button>
                                 </div>
-                                <p className="text-xs text-gray-400">
-                                    Added on: {new Date(admin.createdAt).toLocaleDateString()}
-                                </p>
+                                <div className="flex justify-between items-center text-xs border-t border-gray-50 pt-3">
+                                    <span className="text-gray-400">Added on</span>
+                                    <span className="font-medium text-gray-600">
+                                        {new Date(admin.createdAt).toLocaleDateString()}
+                                    </span>
+                                </div>
                             </div>
                         ))}
 
