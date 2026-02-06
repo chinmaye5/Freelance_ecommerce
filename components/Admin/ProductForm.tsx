@@ -14,6 +14,7 @@ const ProductForm = ({ onClose, onSuccess, initialData }: ProductFormProps) => {
         name: "",
         description: "",
         price: "",
+        discountedPrice: "",
         imageUrl: "",
         category: "",
         stock: "",
@@ -49,6 +50,7 @@ const ProductForm = ({ onClose, onSuccess, initialData }: ProductFormProps) => {
                 body: JSON.stringify({
                     ...formData,
                     price: Number(formData.price),
+                    discountedPrice: formData.discountedPrice ? Number(formData.discountedPrice) : undefined,
                     stock: Number(formData.stock),
                 }),
             });
@@ -117,6 +119,24 @@ const ProductForm = ({ onClose, onSuccess, initialData }: ProductFormProps) => {
                                 value={formData.price}
                                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                             />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-700">Discounted Price (Optional)</label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    placeholder="0.00"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition"
+                                    value={formData.discountedPrice || ""}
+                                    onChange={(e) => setFormData({ ...formData, discountedPrice: e.target.value })}
+                                />
+                                {formData.price && formData.discountedPrice && Number(formData.price) > Number(formData.discountedPrice) && (
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
+                                        {Math.round(((Number(formData.price) - Number(formData.discountedPrice)) / Number(formData.price)) * 100)}% OFF
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="space-y-2 text-gray-700 flex gap-4">

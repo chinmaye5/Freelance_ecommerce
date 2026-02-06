@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 export const dynamic = 'force-dynamic';
 import connectDB from "@/lib/db";
 import Order from "@/lib/models/Order";
+import Product from "@/lib/models/Product";
 import Admin from "@/lib/models/Admin";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -37,8 +38,23 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+
         await connectDB();
         const body = await request.json();
+
+        // Stock Check
+        for (const item of body.items) {
+            const product = await Product.findById(item.productId);
+            if (!product) {
+                return NextResponse.json({ error: `Product ${item.name} not found` }, { status: 404 });
+            }
+            if (product.stock < item.quantity) {
+                return NextResponse.json(
+                    { error: `Insufficient stock for ${item.name}. Available: ${product.stock}` },
+                    { status: 400 }
+                );
+            }
+        }
 
         const order = await Order.create({
             ...body,

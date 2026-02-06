@@ -13,6 +13,7 @@ interface Product {
     category: string;
     stock: number;
     unit: string;
+    discountedPrice?: number;
 }
 
 const ProductList = ({ category, search }: { category?: string; search?: string }) => {

@@ -13,6 +13,7 @@ interface Product {
     category: string;
     stock: number;
     unit: string;
+    discountedPrice?: number;
 }
 
 const ProductCard = ({ product }: { product: Product }) => {
@@ -22,12 +23,16 @@ const ProductCard = ({ product }: { product: Product }) => {
         const existingItem = cart.find((item: any) => item.productId === product._id);
 
         if (existingItem) {
+            if (existingItem.quantity + 1 > product.stock) {
+                toast.error(`Only ${product.stock} items available in stock!`);
+                return;
+            }
             existingItem.quantity += 1;
         } else {
             cart.push({
                 productId: product._id,
                 name: product.name,
-                price: product.price,
+                price: product.discountedPrice || product.price,
                 quantity: 1,
                 imageUrl: product.imageUrl,
                 unit: product.unit
@@ -52,6 +57,11 @@ const ProductCard = ({ product }: { product: Product }) => {
                         <span className="bg-gray-800 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">Out of Stock</span>
                     </div>
                 )}
+                {product.discountedPrice && product.discountedPrice < product.price && (
+                    <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold">
+                        {Math.round(((product.price - product.discountedPrice) / product.price) * 100)}% OFF
+                    </div>
+                )}
             </Link>
 
             <div className="p-4 flex flex-col flex-1">
@@ -66,7 +76,14 @@ const ProductCard = ({ product }: { product: Product }) => {
 
                 <div className="mt-auto flex items-center justify-between">
                     <div>
-                        <p className="text-xl font-bold text-gray-900 leading-none mb-1">₹{product.price}</p>
+                        {product.discountedPrice && product.discountedPrice < product.price ? (
+                            <div className="flex flex-col">
+                                <span className="text-xs text-gray-400 line-through">₹{product.price}</span>
+                                <span className="text-xl font-bold text-green-700 leading-none">₹{product.discountedPrice}</span>
+                            </div>
+                        ) : (
+                            <p className="text-xl font-bold text-gray-900 leading-none mb-1">₹{product.price}</p>
+                        )}
                         <p className="text-[10px] text-gray-500 font-medium">per {product.unit}</p>
                     </div>
                     <button

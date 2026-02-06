@@ -16,6 +16,7 @@ interface Product {
     category: string;
     stock: number;
     unit: string;
+    discountedPrice?: number;
 }
 
 const ProductPage = () => {
@@ -52,12 +53,16 @@ const ProductPage = () => {
         const existingItem = cart.find((item: any) => item.productId === product._id);
 
         if (existingItem) {
+            if (existingItem.quantity + 1 > product.stock) {
+                toast.error(`Only ${product.stock} items available!`);
+                return;
+            }
             existingItem.quantity += 1;
         } else {
             cart.push({
                 productId: product._id,
                 name: product.name,
-                price: product.price,
+                price: product.discountedPrice || product.price,
                 quantity: 1,
                 imageUrl: product.imageUrl,
                 unit: product.unit
@@ -109,9 +114,17 @@ const ProductPage = () => {
                     </div>
 
                     <div className="flex items-center gap-4 mb-8">
-                        <span className="text-4xl font-bold text-gray-900">₹{product.price}</span>
-                        <span className="text-gray-400 line-through text-lg">₹{Math.round(product.price * 1.2)}</span>
-                        <span className="bg-orange-100 text-orange-600 px-2 py-1 rounded font-bold text-sm">Save 20%</span>
+                        {product.discountedPrice && product.discountedPrice < product.price ? (
+                            <>
+                                <span className="text-4xl font-bold text-gray-900">₹{product.discountedPrice}</span>
+                                <span className="text-gray-400 line-through text-lg">₹{product.price}</span>
+                                <span className="bg-red-100 text-red-600 px-2 py-1 rounded font-bold text-sm">
+                                    Save {Math.round(((product.price - product.discountedPrice) / product.price) * 100)}%
+                                </span>
+                            </>
+                        ) : (
+                            <span className="text-4xl font-bold text-gray-900">₹{product.price}</span>
+                        )}
                     </div>
 
                     <div className="mb-10 text-gray-600 transition-all">
