@@ -30,3 +30,33 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         return NextResponse.json({ error: "Failed to delete coupon" }, { status: 500 });
     }
 }
+
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const user = await currentUser();
+        const email = user?.emailAddresses[0]?.emailAddress;
+
+        await connectDB();
+
+        const isSuperAdmin = email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+        let isRegularAdmin = false;
+
+        if (!isSuperAdmin) {
+            const admin = await Admin.findOne({ email });
+            isRegularAdmin = !!admin;
+        }
+
+        if (!isSuperAdmin && !isRegularAdmin) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = await params;
+        const body = await request.json();
+
+        const updatedCoupon = await Coupon.findByIdAndUpdate(id, { $set: body }, { new: true });
+        return NextResponse.json(updatedCoupon);
+    } catch (error) {
+        console.error("Update coupon error:", error);
+        return NextResponse.json({ error: "Failed to update coupon" }, { status: 500 });
+    }
+}

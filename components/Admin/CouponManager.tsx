@@ -4,13 +4,27 @@ import { useState, useEffect } from "react";
 import { Plus, Trash2, Ticket, Percent, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 
+const Switch = ({ checked, onChange, disabled }: { checked: boolean, onChange: (val: boolean) => void, disabled?: boolean }) => (
+    <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onChange(!checked)}
+        className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${checked ? 'bg-green-500' : 'bg-gray-300'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+    >
+        <span
+            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'}`}
+        />
+    </button>
+);
+
 const CouponManager = () => {
     const [coupons, setCoupons] = useState<any[]>([]);
     const [newCoupon, setNewCoupon] = useState({
         code: "",
         discountType: "PERCENTAGE",
         discountValue: 0,
-        minOrderAmount: 0
+        minOrderAmount: 0,
+        isVisible: false
     });
     const [loading, setLoading] = useState(false);
 
@@ -20,7 +34,7 @@ const CouponManager = () => {
 
     const fetchCoupons = async () => {
         try {
-            const res = await fetch("/api/coupons");
+            const res = await fetch(`/api/coupons?t=${Date.now()}`, { cache: 'no-store' });
             const data = await res.json();
             setCoupons(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -47,7 +61,8 @@ const CouponManager = () => {
                     code: "",
                     discountType: "PERCENTAGE",
                     discountValue: 0,
-                    minOrderAmount: 0
+                    minOrderAmount: 0,
+                    isVisible: false
                 });
                 fetchCoupons();
             } else {
@@ -70,6 +85,31 @@ const CouponManager = () => {
                 fetchCoupons();
             }
         } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const toggleStatus = async (id: string, field: string, targetValue: boolean) => {
+        const loadingToast = toast.loading("Updating...");
+        try {
+            const res = await fetch(`/api/coupons/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ [field]: targetValue }),
+                cache: 'no-store'
+            });
+            toast.dismiss(loadingToast);
+            if (res.ok) {
+                toast.success("Updated successfully");
+                // Update local state immediately for better responsiveness
+                setCoupons(prev => prev.map(c => c._id === id ? { ...c, [field]: targetValue } : c));
+            } else {
+                const errorData = await res.json();
+                toast.error(errorData.error || "Failed to update");
+            }
+        } catch (error) {
+            toast.dismiss(loadingToast);
+            toast.error("An error occurred");
             console.error(error);
         }
     };
@@ -139,6 +179,30 @@ const CouponManager = () => {
                             />
                         </div>
 
+                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-3">
+                            <p className="text-sm font-bold text-gray-700">Display at checkout?</p>
+                            <div className="flex gap-4">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        className="w-4 h-4 text-green-600 focus:ring-green-500"
+                                        checked={newCoupon.isVisible === true}
+                                        onChange={() => setNewCoupon({ ...newCoupon, isVisible: true })}
+                                    />
+                                    <span className="text-sm font-medium">Yes</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        className="w-4 h-4 text-green-600 focus:ring-green-500"
+                                        checked={newCoupon.isVisible === false}
+                                        onChange={() => setNewCoupon({ ...newCoupon, isVisible: false })}
+                                    />
+                                    <span className="text-sm font-medium">No</span>
+                                </label>
+                            </div>
+                        </div>
+
                         <button
                             disabled={loading}
                             className="w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition disabled:opacity-50"
@@ -158,6 +222,8 @@ const CouponManager = () => {
                                 <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Code</th>
                                 <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Discount</th>
                                 <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Min Order</th>
+                                <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Visibility</th>
+                                <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Status</th>
                                 <th className="text-right p-4 text-xs font-bold text-gray-400 uppercase">Actions</th>
                             </tr>
                         </thead>
@@ -178,6 +244,58 @@ const CouponManager = () => {
                                         </span>
                                     </td>
                                     <td className="p-4 text-sm text-gray-500">₹{coupon.minOrderAmount}</td>
+                                    <td className="p-4">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    id={`visible-true-${coupon._id}`}
+                                                    name={`visible-${coupon._id}`}
+                                                    checked={coupon.isVisible === true}
+                                                    onChange={() => toggleStatus(coupon._id, 'isVisible', true)}
+                                                    className="w-3 h-3 text-green-600 cursor-pointer"
+                                                />
+                                                <label htmlFor={`visible-true-${coupon._id}`} className="text-[10px] font-bold text-gray-700 cursor-pointer">SHOW</label>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    id={`visible-false-${coupon._id}`}
+                                                    name={`visible-${coupon._id}`}
+                                                    checked={coupon.isVisible === false || coupon.isVisible === undefined}
+                                                    onChange={() => toggleStatus(coupon._id, 'isVisible', false)}
+                                                    className="w-3 h-3 text-gray-400 cursor-pointer"
+                                                />
+                                                <label htmlFor={`visible-false-${coupon._id}`} className="text-[10px] font-bold text-gray-400 cursor-pointer">HIDE</label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="p-4">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    id={`active-true-${coupon._id}`}
+                                                    name={`active-${coupon._id}`}
+                                                    checked={coupon.isActive === true}
+                                                    onChange={() => toggleStatus(coupon._id, 'isActive', true)}
+                                                    className="w-3 h-3 text-blue-600 cursor-pointer"
+                                                />
+                                                <label htmlFor={`active-true-${coupon._id}`} className="text-[10px] font-bold text-gray-700 cursor-pointer">ACTIVE</label>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    id={`active-false-${coupon._id}`}
+                                                    name={`active-${coupon._id}`}
+                                                    checked={coupon.isActive === false}
+                                                    onChange={() => toggleStatus(coupon._id, 'isActive', false)}
+                                                    className="w-3 h-3 text-gray-400 cursor-pointer"
+                                                />
+                                                <label htmlFor={`active-false-${coupon._id}`} className="text-[10px] font-bold text-gray-400 cursor-pointer">OFF</label>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td className="p-4 text-right">
                                         <button
                                             onClick={() => handleDelete(coupon._id)}
@@ -214,12 +332,42 @@ const CouponManager = () => {
                                         <Trash2 size={18} />
                                     </button>
                                 </div>
-                                <div className="pl-9 flex gap-4 text-sm text-gray-500">
-                                    <span className="flex items-center gap-1">
-                                        {coupon.discountType === 'PERCENTAGE' ? <Percent size={14} /> : <DollarSign size={14} />}
-                                        {coupon.discountValue}{coupon.discountType === 'PERCENTAGE' ? '%' : ''}
-                                    </span>
-                                    <span>Min: ₹{coupon.minOrderAmount}</span>
+                                <div className="pl-9 space-y-4">
+                                    <div className="flex gap-4 text-xs text-gray-500 items-center">
+                                        <span className="flex items-center gap-1 font-bold">
+                                            {coupon.discountType === 'PERCENTAGE' ? <Percent size={12} /> : <DollarSign size={12} />}
+                                            {coupon.discountValue}{coupon.discountType === 'PERCENTAGE' ? '%' : ''} OFF
+                                        </span>
+                                        <span>Min: ₹{coupon.minOrderAmount}</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                        <div className="space-y-2">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase">Visibility</p>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" checked={coupon.isVisible === true} onChange={() => toggleStatus(coupon._id, 'isVisible', true)} className="w-4 h-4 text-green-600" />
+                                                    <span className="text-[10px] font-bold">SHOW</span>
+                                                </label>
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" checked={coupon.isVisible === false || coupon.isVisible === undefined} onChange={() => toggleStatus(coupon._id, 'isVisible', false)} className="w-4 h-4 text-gray-400" />
+                                                    <span className="text-[10px] font-bold">HIDE</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <p className="text-[9px] font-black text-gray-400 uppercase">Status</p>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" checked={coupon.isActive === true} onChange={() => toggleStatus(coupon._id, 'isActive', true)} className="w-4 h-4 text-blue-600" />
+                                                    <span className="text-[10px] font-bold">ACTIVE</span>
+                                                </label>
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" checked={coupon.isActive === false} onChange={() => toggleStatus(coupon._id, 'isActive', false)} className="w-4 h-4 text-gray-400" />
+                                                    <span className="text-[10px] font-bold">OFF</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ))}

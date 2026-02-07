@@ -19,6 +19,7 @@ const CartPage = () => {
     const [couponCode, setCouponCode] = useState("");
     const [discount, setDiscount] = useState(0);
     const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+    const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
 
     useEffect(() => {
         const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -27,7 +28,20 @@ const CartPage = () => {
         if (user) {
             setCustomerName(user.fullName || "");
         }
+        fetchAvailableCoupons();
     }, [user]);
+
+    const fetchAvailableCoupons = async () => {
+        try {
+            const res = await fetch(`/api/coupons?visibleOnly=true&t=${Date.now()}`, { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                setAvailableCoupons(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch coupons:", error);
+        }
+    };
 
     const updateQuantity = (productId: string, delta: number, variant?: string) => {
         const updatedCart = cart.map(item => {
@@ -53,14 +67,15 @@ const CartPage = () => {
     const totalAmount = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const finalTotal = Math.max(0, totalAmount - discount);
 
-    const handleApplyCoupon = async () => {
-        if (!couponCode.trim()) return;
+    const handleApplyCoupon = async (codeOverride?: string) => {
+        const codeToApply = codeOverride || couponCode;
+        if (!codeToApply.trim()) return;
         const loadingToast = toast.loading("Verifying coupon...");
         try {
             const res = await fetch("/api/coupons/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code: couponCode, orderTotal: totalAmount }),
+                body: JSON.stringify({ code: codeToApply, orderTotal: totalAmount }),
             });
             const data = await res.json();
 
@@ -69,6 +84,7 @@ const CartPage = () => {
             if (res.ok && data.valid) {
                 setDiscount(data.discountAmount);
                 setAppliedCoupon(data.code);
+                setCouponCode(data.code);
                 toast.success(`Coupon applied! You saved ₹${data.discountAmount}`);
             } else {
                 setDiscount(0);
@@ -226,7 +242,7 @@ const CartPage = () => {
                             {/* Coupon Section */}
                             <div className="mb-6">
                                 <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Coupon Code</label>
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 mb-3">
                                     <input
                                         type="text"
                                         placeholder="Enter coupon"
@@ -244,7 +260,7 @@ const CartPage = () => {
                                         </button>
                                     ) : (
                                         <button
-                                            onClick={handleApplyCoupon}
+                                            onClick={() => handleApplyCoupon()}
                                             disabled={!couponCode}
                                             className="px-4 py-2 bg-gray-900 text-white rounded-lg font-bold hover:bg-black transition disabled:opacity-50"
                                         >
@@ -252,10 +268,45 @@ const CartPage = () => {
                                         </button>
                                     )}
                                 </div>
-                                {appliedCoupon && (
+
+                                {appliedCoupon ? (
                                     <p className="text-xs text-green-600 font-bold mt-2 flex items-center gap-1">
                                         <Ticket size={12} /> Coupon {appliedCoupon} applied
                                     </p>
+                                ) : (
+                                    availableCoupons.length > 0 && (
+                                        <div className="space-y-2 mt-4">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Available Coupons</p>
+                                            <div className="grid gap-2">
+                                                {availableCoupons.map((coupon) => {
+                                                    const isEligible = totalAmount >= coupon.minOrderAmount;
+                                                    return (
+                                                        <button
+                                                            key={coupon._id}
+                                                            onClick={() => isEligible && handleApplyCoupon(coupon.code)}
+                                                            className={`text-left p-3 rounded-xl border-2 transition-all ${isEligible
+                                                                ? "border-green-100 bg-green-50/50 hover:border-green-500 hover:bg-green-50 cursor-pointer"
+                                                                : "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed"
+                                                                }`}
+                                                            disabled={!isEligible}
+                                                        >
+                                                            <div className="flex justify-between items-start">
+                                                                <div>
+                                                                    <p className={`font-black text-sm ${isEligible ? 'text-green-700' : 'text-gray-500'}`}>{coupon.code}</p>
+                                                                    <p className="text-[10px] text-gray-500 font-medium">
+                                                                        {coupon.discountType === 'PERCENTAGE' ? `${coupon.discountValue}% OFF` : `₹${coupon.discountValue} OFF`}
+                                                                    </p>
+                                                                </div>
+                                                                {!isEligible && (
+                                                                    <p className="text-[9px] text-red-500 font-bold">Min: ₹{coupon.minOrderAmount}</p>
+                                                                )}
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )
                                 )}
                             </div>
 

@@ -116,7 +116,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                             </div>
                         </div>
                         <div className="text-right flex flex-col items-end max-w-[250px]">
-                            <h2 className="text-sm font-black text-green-600 uppercase mb-1">Keshava Kiranam & General Store</h2>
+                            <h2 className="text-sm font-black text-green-600 uppercase mb-1">Keshava Kiranam</h2>
                             <p className="text-[10px] text-gray-500 leading-tight">Opp Bus stand, Nekkonda Road,</p>
                             <p className="text-[10px] text-gray-500 leading-tight">Gudur, Warangal-506134, Telangana</p>
                             <p className="text-[10px] text-gray-500 mt-1 flex items-center gap-1"><Phone size={10} /> 9849303230</p>
@@ -176,10 +176,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                                 <span className="text-gray-500">Subtotal</span>
                                 <span className="text-gray-900 font-medium">₹{subtotal}</span>
                             </div>
-                            <div className="flex justify-between text-xs">
-                                <span className="text-gray-500">Delivery</span>
-                                <span className="text-green-600 font-medium">FREE</span>
-                            </div>
+
                             <div className="pt-2 border-t border-gray-100 flex justify-between items-center">
                                 <span className="text-sm font-black text-gray-900 uppercase">Paid Total</span>
                                 <span className="text-xl font-black text-green-600">₹{order.totalAmount}</span>

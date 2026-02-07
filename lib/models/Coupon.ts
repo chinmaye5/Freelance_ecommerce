@@ -6,6 +6,7 @@ const CouponSchema = new Schema({
     discountValue: { type: Number, required: true },
     minOrderAmount: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
+    isVisible: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
 });
 
