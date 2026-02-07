@@ -139,8 +139,8 @@ const ProductCard = ({ product }: { product: Product }) => {
                                     if (v) setSelectedVariant(v);
                                 }}
                             >
-                                {product.variants.map(v => (
-                                    <option key={v.name} value={v.name}>
+                                {product.variants.map((v, idx) => (
+                                    <option key={`${product._id}-variant-${idx}`} value={v.name}>
                                         {v.name} - ₹{v.discountedPrice || v.price}
                                     </option>
                                 ))}

@@ -21,6 +21,7 @@ const ProductForm = ({ onClose, onSuccess, initialData }: ProductFormProps) => {
         unit: "kg",
         hasVariants: false,
         variants: [] as any[],
+        isOnOffer: false,
     });
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
@@ -30,7 +31,8 @@ const ProductForm = ({ onClose, onSuccess, initialData }: ProductFormProps) => {
             setFormData({
                 ...initialData,
                 hasVariants: initialData.hasVariants || false,
-                variants: initialData.variants || []
+                variants: initialData.variants || [],
+                isOnOffer: initialData.isOnOffer || false
             });
         }
 
@@ -200,6 +202,23 @@ const ProductForm = ({ onClose, onSuccess, initialData }: ProductFormProps) => {
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
+                    </div>
+
+                    {/* Mark as Offer Section */}
+                    <div className="pt-4 border-t border-gray-100">
+                        <div className="flex items-center gap-2 mb-4 bg-orange-50 p-4 rounded-xl border border-orange-200">
+                            <input
+                                type="checkbox"
+                                id="isOnOffer"
+                                className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500 border-gray-300"
+                                checked={formData.isOnOffer}
+                                onChange={(e) => setFormData({ ...formData, isOnOffer: e.target.checked })}
+                            />
+                            <label htmlFor="isOnOffer" className="font-bold text-orange-900 select-none cursor-pointer flex items-center gap-2">
+                                Mark as Special Offer
+                                <span className="text-xs font-normal text-orange-700">(Will appear in Offers section)</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div className="pt-4 border-t border-gray-100">

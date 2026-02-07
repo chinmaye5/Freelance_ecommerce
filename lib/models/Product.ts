@@ -16,6 +16,7 @@ const ProductSchema = new Schema({
         discountedPrice: { type: Number },
         stock: { type: Number, required: true, default: 0 },
     }],
+    isOnOffer: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
 });
 

@@ -12,50 +12,62 @@ export default function Home() {
   return (
     <div className="bg-gray-50 flex flex-col min-h-screen">
       {/* Search & Hero */}
-      <div className="bg-green-600 py-12 px-4 shadow-inner">
+      <div className="bg-green-600 py-8 md:py-12 px-4 shadow-inner">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
+          <h1 className="text-2xl md:text-5xl font-extrabold text-white mb-4 md:mb-6">
             Order from a wide range of fresh items and pick up when order is ready
           </h1>
-          <p className="text-green-100 text-lg mb-8 max-w-2xl mx-auto font-medium">
+          <p className="text-green-100 text-base md:text-lg mb-6 md:mb-8 max-w-2xl mx-auto font-medium">
             Shop from our wide range of items and daily essentials.
           </p>
 
-          <div className="max-w-2xl mx-auto relative group">
+          <div className="max-w-2xl mx-auto relative group mb-4">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-600 transition-colors" size={20} />
             <input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-xl bg-white text-gray-900 border-none shadow-lg outline-none focus:ring-2 focus:ring-green-400 text-lg transition-all"
+              className="w-full pl-12 pr-4 py-3 md:py-4 rounded-xl bg-white text-gray-900 border-none shadow-lg outline-none focus:ring-2 focus:ring-green-400 text-base md:text-lg transition-all"
             />
           </div>
+
+          {/* Compact Offers Button */}
+          <button
+            onClick={() => window.location.href = '/offers'}
+            className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-xl font-bold text-sm md:text-base hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center gap-2"
+          >
+            <span className="text-lg">🎁</span>
+            <span>View Special Offers</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
         </div>
       </div>
 
       {/* Trust Badges */}
       <div className="max-w-7xl mx-auto w-full px-4 -mt-6">
-        <div className="bg-white grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-4 p-6 rounded-2xl shadow-md border border-gray-100">
-          <div className="flex flex-col items-center justify-center text-center gap-3 p-4">
-            <div className="bg-green-50 p-3 rounded-full text-green-600"><ShoppingBasket size={24} /></div>
+        <div className="bg-white grid grid-cols-3 gap-0 md:gap-4 p-2 md:p-6 rounded-2xl shadow-md border border-gray-100">
+          <div className="flex flex-col items-center justify-center text-center gap-1 md:gap-3 p-1 md:p-4">
+            <div className="bg-green-50 p-1.5 md:p-3 rounded-full text-green-600"><ShoppingBasket size={16} className="md:w-6 md:h-6" /></div>
             <div>
-              <p className="font-bold text-gray-900">Wide Variety</p>
-              <p className="text-xs text-gray-500">1000+ Fresh items</p>
+              <p className="font-bold text-gray-900 text-[10px] md:text-base">Wide Variety</p>
+              <p className="text-[8px] md:text-xs text-gray-500">1000+ items</p>
             </div>
           </div>
-          <div className="flex flex-col items-center justify-center text-center gap-3 p-4 border-y md:border-y-0 md:border-x border-gray-100 py-6 md:py-4">
-            <div className="bg-orange-50 p-3 rounded-full text-orange-600"><Truck size={24} /></div>
+          <div className="flex flex-col items-center justify-center text-center gap-1 md:gap-3 p-1 md:p-4 md:border-x border-gray-100">
+            <div className="bg-orange-50 p-1.5 md:p-3 rounded-full text-orange-600"><Truck size={16} className="md:w-6 md:h-6" /></div>
             <div>
-              <p className="font-bold text-gray-900">Self Pickup</p>
-              <p className="text-xs text-gray-500">Fast & Convenient</p>
+              <p className="font-bold text-gray-900 text-[10px] md:text-base">Self Pickup</p>
+              <p className="text-[8px] md:text-xs text-gray-500">Fast & Convenient</p>
             </div>
           </div>
-          <div className="flex flex-col items-center justify-center text-center gap-3 p-4">
-            <div className="bg-blue-50 p-3 rounded-full text-blue-600"><ShieldCheck size={24} /></div>
+          <div className="flex flex-col items-center justify-center text-center gap-1 md:gap-3 p-1 md:p-4">
+            <div className="bg-blue-50 p-1.5 md:p-3 rounded-full text-blue-600"><ShieldCheck size={16} className="md:w-6 md:h-6" /></div>
             <div>
-              <p className="font-bold text-gray-900">Quality Checked</p>
-              <p className="text-xs text-gray-500">100% Guaranteed</p>
+              <p className="font-bold text-gray-900 text-[10px] md:text-base">Quality Checked</p>
+              <p className="text-[8px] md:text-xs text-gray-500">100% Guaranteed</p>
             </div>
           </div>
         </div>

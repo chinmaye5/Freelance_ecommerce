@@ -63,6 +63,9 @@ const Navbar = () => {
                     <Link href="/" className={`text-sm font-medium ${pathname === "/" ? "text-green-600" : "text-gray-600 hover:text-gray-900"}`}>
                         Home
                     </Link>
+                    <Link href="/offers" className={`text-sm font-medium flex items-center gap-1 ${pathname === "/offers" ? "text-orange-600" : "text-gray-600 hover:text-orange-600"}`}>
+                        Offers
+                    </Link>
                     <Link href="/my-orders" className={`text-sm font-medium ${pathname === "/my-orders" ? "text-green-600" : "text-gray-600 hover:text-gray-900"}`}>
                         My Orders
                     </Link>
@@ -103,10 +106,10 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile Menu */}
             {mobileMenuOpen && (
                 <div className="md:hidden bg-white border-b border-gray-100 p-4 space-y-3">
                     <Link href="/" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-gray-600 font-medium">Home</Link>
+                    <Link href="/offers" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-orange-600 font-medium">Offers</Link>
                     <Link href="/my-orders" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-gray-600 font-medium">My Orders</Link>
                     {isAdmin && (
                         <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-gray-600 font-medium">Admin Dashboard</Link>
