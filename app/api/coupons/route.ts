@@ -9,11 +9,20 @@ export async function GET(request: Request) {
     try {
         await connectDB();
         const { searchParams } = new URL(request.url);
-        const visibleOnly = searchParams.get("visibleOnly") === "true";
+        const activeOnly = searchParams.get("activeOnly") === "true";
 
-        const filter = visibleOnly ? { isVisible: { $ne: false }, isActive: true } : {};
-        const coupons = await Coupon.find(filter).sort({ createdAt: -1 });
-        return NextResponse.json(coupons);
+        let coupons;
+        if (activeOnly) {
+            // For cart: show only active coupons
+            coupons = await Coupon.find({ isActive: true }).sort({ createdAt: -1 }).lean();
+        } else {
+            // For admin: show everything
+            coupons = await Coupon.find({}).sort({ createdAt: -1 }).lean();
+        }
+
+        return NextResponse.json(coupons, {
+            headers: { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
+        });
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch coupons" }, { status: 500 });
     }

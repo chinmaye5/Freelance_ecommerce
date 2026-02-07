@@ -11,7 +11,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ valid: false, message: "Coupon code is required" }, { status: 400 });
         }
 
-        const coupon = await Coupon.findOne({ code, isActive: true });
+        const coupon = await Coupon.findOne({
+            code,
+            isActive: { $ne: false }
+        });
 
         if (!coupon) {
             return NextResponse.json({ valid: false, message: "Invalid coupon code" }, { status: 404 });

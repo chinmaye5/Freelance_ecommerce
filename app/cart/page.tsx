@@ -33,7 +33,7 @@ const CartPage = () => {
 
     const fetchAvailableCoupons = async () => {
         try {
-            const res = await fetch(`/api/coupons?visibleOnly=true&t=${Date.now()}`, { cache: 'no-store' });
+            const res = await fetch(`/api/coupons?activeOnly=true&t=${Date.now()}`, { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
                 setAvailableCoupons(data);

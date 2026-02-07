@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
 import connectDB from "@/lib/db";
 import Coupon from "@/lib/models/Coupon";
 import Admin from "@/lib/models/Admin";
@@ -53,10 +54,24 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         const { id } = await params;
         const body = await request.json();
 
-        const updatedCoupon = await Coupon.findByIdAndUpdate(id, { $set: body }, { new: true });
-        return NextResponse.json(updatedCoupon);
+        console.log(`[Coupon API] Updating ${id}:`, body);
+
+        // Use updateOne to ensure strict persistence
+        const result = await Coupon.updateOne({ _id: id }, { $set: body });
+
+        if (result.matchedCount === 0) {
+            console.error(`[Coupon API] Coupon not found: ${id}`);
+            return NextResponse.json({ error: "Coupon not found" }, { status: 404 });
+        }
+
+        const updatedCoupon = await Coupon.findById(id).lean();
+        console.log(`[Coupon API] Update successful: ${id}`, updatedCoupon);
+
+        return NextResponse.json(updatedCoupon, {
+            headers: { 'Cache-Control': 'no-store' }
+        });
     } catch (error) {
-        console.error("Update coupon error:", error);
-        return NextResponse.json({ error: "Failed to update coupon" }, { status: 500 });
+        console.error("[Coupon API] PATCH Error:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

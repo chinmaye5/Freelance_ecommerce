@@ -23,8 +23,7 @@ const CouponManager = () => {
         code: "",
         discountType: "PERCENTAGE",
         discountValue: 0,
-        minOrderAmount: 0,
-        isVisible: false
+        minOrderAmount: 0
     });
     const [loading, setLoading] = useState(false);
 
@@ -61,8 +60,7 @@ const CouponManager = () => {
                     code: "",
                     discountType: "PERCENTAGE",
                     discountValue: 0,
-                    minOrderAmount: 0,
-                    isVisible: false
+                    minOrderAmount: 0
                 });
                 fetchCoupons();
             } else {
@@ -100,9 +98,10 @@ const CouponManager = () => {
             });
             toast.dismiss(loadingToast);
             if (res.ok) {
+                // Use the server's response to update local state - this is what was actually saved
+                const updatedCoupon = await res.json();
+                setCoupons(prev => prev.map(c => c._id === id ? updatedCoupon : c));
                 toast.success("Updated successfully");
-                // Update local state immediately for better responsiveness
-                setCoupons(prev => prev.map(c => c._id === id ? { ...c, [field]: targetValue } : c));
             } else {
                 const errorData = await res.json();
                 toast.error(errorData.error || "Failed to update");
@@ -179,30 +178,6 @@ const CouponManager = () => {
                             />
                         </div>
 
-                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-3">
-                            <p className="text-sm font-bold text-gray-700">Display at checkout?</p>
-                            <div className="flex gap-4">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        className="w-4 h-4 text-green-600 focus:ring-green-500"
-                                        checked={newCoupon.isVisible === true}
-                                        onChange={() => setNewCoupon({ ...newCoupon, isVisible: true })}
-                                    />
-                                    <span className="text-sm font-medium">Yes</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        className="w-4 h-4 text-green-600 focus:ring-green-500"
-                                        checked={newCoupon.isVisible === false}
-                                        onChange={() => setNewCoupon({ ...newCoupon, isVisible: false })}
-                                    />
-                                    <span className="text-sm font-medium">No</span>
-                                </label>
-                            </div>
-                        </div>
-
                         <button
                             disabled={loading}
                             className="w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition disabled:opacity-50"
@@ -222,7 +197,6 @@ const CouponManager = () => {
                                 <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Code</th>
                                 <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Discount</th>
                                 <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Min Order</th>
-                                <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Visibility</th>
                                 <th className="text-left p-4 text-xs font-bold text-gray-400 uppercase">Status</th>
                                 <th className="text-right p-4 text-xs font-bold text-gray-400 uppercase">Actions</th>
                             </tr>
@@ -249,39 +223,13 @@ const CouponManager = () => {
                                             <div className="flex items-center gap-2">
                                                 <input
                                                     type="radio"
-                                                    id={`visible-true-${coupon._id}`}
-                                                    name={`visible-${coupon._id}`}
-                                                    checked={coupon.isVisible === true}
-                                                    onChange={() => toggleStatus(coupon._id, 'isVisible', true)}
-                                                    className="w-3 h-3 text-green-600 cursor-pointer"
-                                                />
-                                                <label htmlFor={`visible-true-${coupon._id}`} className="text-[10px] font-bold text-gray-700 cursor-pointer">SHOW</label>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <input
-                                                    type="radio"
-                                                    id={`visible-false-${coupon._id}`}
-                                                    name={`visible-${coupon._id}`}
-                                                    checked={coupon.isVisible === false || coupon.isVisible === undefined}
-                                                    onChange={() => toggleStatus(coupon._id, 'isVisible', false)}
-                                                    className="w-3 h-3 text-gray-400 cursor-pointer"
-                                                />
-                                                <label htmlFor={`visible-false-${coupon._id}`} className="text-[10px] font-bold text-gray-400 cursor-pointer">HIDE</label>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="p-4">
-                                        <div className="flex flex-col gap-1">
-                                            <div className="flex items-center gap-2">
-                                                <input
-                                                    type="radio"
                                                     id={`active-true-${coupon._id}`}
                                                     name={`active-${coupon._id}`}
-                                                    checked={coupon.isActive === true}
+                                                    checked={coupon.isActive === true || coupon.isActive === undefined}
                                                     onChange={() => toggleStatus(coupon._id, 'isActive', true)}
-                                                    className="w-3 h-3 text-blue-600 cursor-pointer"
+                                                    className="w-3 h-3 text-green-600 cursor-pointer"
                                                 />
-                                                <label htmlFor={`active-true-${coupon._id}`} className="text-[10px] font-bold text-gray-700 cursor-pointer">ACTIVE</label>
+                                                <label htmlFor={`active-true-${coupon._id}`} className="text-[10px] font-bold text-green-600 cursor-pointer">ACTIVE</label>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <input
@@ -340,30 +288,29 @@ const CouponManager = () => {
                                         </span>
                                         <span>Min: ₹{coupon.minOrderAmount}</span>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                        <div className="space-y-2">
-                                            <p className="text-[9px] font-black text-gray-400 uppercase">Visibility</p>
-                                            <div className="flex flex-col gap-2">
-                                                <label className="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" checked={coupon.isVisible === true} onChange={() => toggleStatus(coupon._id, 'isVisible', true)} className="w-4 h-4 text-green-600" />
-                                                    <span className="text-[10px] font-bold">SHOW</span>
-                                                </label>
-                                                <label className="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" checked={coupon.isVisible === false || coupon.isVisible === undefined} onChange={() => toggleStatus(coupon._id, 'isVisible', false)} className="w-4 h-4 text-gray-400" />
-                                                    <span className="text-[10px] font-bold">HIDE</span>
-                                                </label>
-                                            </div>
-                                        </div>
+                                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                         <div className="space-y-2">
                                             <p className="text-[9px] font-black text-gray-400 uppercase">Status</p>
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex gap-4">
                                                 <label className="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" checked={coupon.isActive === true} onChange={() => toggleStatus(coupon._id, 'isActive', true)} className="w-4 h-4 text-blue-600" />
-                                                    <span className="text-[10px] font-bold">ACTIVE</span>
+                                                    <input
+                                                        type="radio"
+                                                        name={`mob-active-${coupon._id}`}
+                                                        checked={coupon.isActive === true || coupon.isActive === undefined}
+                                                        onChange={() => toggleStatus(coupon._id, 'isActive', true)}
+                                                        className="w-4 h-4 text-green-600"
+                                                    />
+                                                    <span className="text-[10px] font-bold text-green-600">ACTIVE</span>
                                                 </label>
                                                 <label className="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" checked={coupon.isActive === false} onChange={() => toggleStatus(coupon._id, 'isActive', false)} className="w-4 h-4 text-gray-400" />
-                                                    <span className="text-[10px] font-bold">OFF</span>
+                                                    <input
+                                                        type="radio"
+                                                        name={`mob-active-${coupon._id}`}
+                                                        checked={coupon.isActive === false}
+                                                        onChange={() => toggleStatus(coupon._id, 'isActive', false)}
+                                                        className="w-4 h-4 text-gray-400"
+                                                    />
+                                                    <span className="text-[10px] font-bold text-gray-400">OFF</span>
                                                 </label>
                                             </div>
                                         </div>
